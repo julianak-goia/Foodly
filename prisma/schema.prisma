@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurant {
+  id                  String     @id @default(uuid()) //@id - primary key @default uuid() - cria um id aleatorio se eu não passsar um id
+  name                String
+  imageURL            String
+  deliveryFee         Decimal    @db.Decimal(10, 2) //o valor vai ser do tipo decimal que pode ter até 10 casas antes da virgula e 2 casas depois
+  deliveryTimeMinutes Int
+  categories          Category[] //um restaurante tem varios categorias - relação many to many
+  products            Product[] // um restaurante pode ter varios produtos
+}
+
+model Category {
+  id          String       @id @default(uuid()) //@id - primary key @default uuid() - cria um id aleatorio se eu não passsar um id
+  name        String
+  imageURL    String
+  restaurants Restaurant[] //uma categoria pode ter varios restaurantes - relação many to many
+  products    Product[]
+}
+
+model Product {
+  id                 String     @id @default(uuid()) //@id - primary key @default uuid() - cria um id aleatorio se eu não passsar um id
+  name               String
+  description        String
+  imageURL           String
+  price              Decimal    @db.Decimal(10, 2) //o valor vai ser do tipo decimal que pode ter até 10 casas antes da virgula e 2 casas depois
+  discountPercentage Int        @default(0) //se eu não colocar uma porcentagem de desconto por padrão vem 0
+  restaurantId       String
+  restaurant         Restaurant @relation(fields: [restaurantId], references: [id]) //o campo restaurantId é um id da model Restaurant, portanto o restaurantId é uma foreign key
+  categoryId         String
+  category           Category   @relation(fields: [categoryId], references: [id])
+}
