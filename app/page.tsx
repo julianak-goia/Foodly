@@ -5,8 +5,28 @@ import Image from "next/image";
 import ProductList from "./components/product-list";
 import { Button } from "./components/ui/button";
 import { ChevronRightIcon } from "lucide-react";
+import { db } from "./lib/prisma";
 
-export default function Home() {
+const Home = async () => {
+  const products = await db.product.findMany({
+    //pegar os produtos que possue desconto - for maior que 0
+    where: {
+      discountPercentage: {
+        gt: 0,
+      },
+    },
+    take: 15,
+    // include - traz os relacionamentos que adicionamos no schema prisma, no caso o restaurant
+    include: {
+      restaurant: {
+        // consigo selecionar somente o que eu quero do relacionamento, no caso apenas o nome
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
   return (
     <>
       <Header />
@@ -38,8 +58,10 @@ export default function Home() {
             <ChevronRightIcon size={16} />
           </Button>
         </div>
-        <ProductList />
+        <ProductList products={products} />
       </div>
     </>
   );
-}
+};
+
+export default Home;
