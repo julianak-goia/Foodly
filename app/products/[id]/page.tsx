@@ -19,21 +19,24 @@ const ProductsPage = async ({ params: { id } }: ProductPageProps) => {
     },
   });
 
+  //se não tiver um produto com o id vai para a pagina de 404
+  if (!product) {
+    return notFound();
+  }
+
   const juices = await db.product.findMany({
     where: {
       category: {
         name: "Sucos",
+      },
+      restaurant: {
+        id: product?.restaurant.id,
       },
     },
     include: {
       restaurant: true,
     },
   });
-
-  //se não tiver um produto com o id vai para a pagina de 404
-  if (!product) {
-    return notFound();
-  }
 
   return (
     <div>
